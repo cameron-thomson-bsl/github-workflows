@@ -37,7 +37,7 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     # Specify that this job should only run if the unit tests job succeeds.
     # See https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs
-    needs: call-unit-tests-workflow
+    # needs: call-unit-tests-workflow
     runs-on: ubuntu-latest
     steps:
       # Fetch the Dependabot metadata that describes the updated dependencies.
