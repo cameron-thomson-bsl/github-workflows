@@ -23,10 +23,6 @@ on:
         description: "The URL of the Dependabot PR to auto-merge."
         required: true
         type: string
-    # Since all of our workflows are called from the same organisation, we can use the `inherit`
-    # keyword to implicitly pass the calling workflow's secrets.
-    # See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idsecretsinherit
-    secrets: inherit
 
 permissions:
   contents: write
@@ -65,5 +61,4 @@ jobs:
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ inputs.pr_url }}
-          GITHUB_TOKEN: ${{ secrets.github-token }}
-    secrets: inherit
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
