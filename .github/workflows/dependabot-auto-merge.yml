@@ -1,0 +1,69 @@
+##
+ # A reusable Dependabot auto-merge config for merging patch and minor updates
+ # when unit tests succeed.
+ #
+ # See https://docs.github.com/en/actions/using-workflows/reusing-workflows#creating-a-reusable-workflow
+ # ______________________________________________________________________________
+ #
+ # Maintained by brightSPARK Labs.
+ # www.brightsparklabs.com
+ ##
+
+name: Reusable Dependabot auto-merge workflow
+on:
+  workflow_call:
+    inputs:
+      unit-tests-workflow-ref:
+        description: | 
+          A reference to the workflow that should succeed before auto-merging dependencies.
+          e.g. "example-org/example-repo/.github/workflows/unit-tests.yml@main"
+        required: true
+        type: string
+      pr_url:
+        description: "The URL of the Dependabot PR to auto-merge."
+        required: true
+        type: string
+    # Since all of our workflows are called from the same organisation, we can use the `inherit`
+    # keyword to implicitly pass the calling workflow's secrets.
+    # See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idsecretsinherit
+    secrets: inherit
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Run the given unit tests.
+  call-unit-tests-workflow:
+    uses: ${{ inputs.unit-tests-workflow-ref }}
+    secrets: inherit
+  # Auto-merge dependabot PR.
+  # Based on https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#enable-auto-merge-on-a-pull-request
+  auto-merge-dependabot-pr:
+    # Specify that this job should only run if the unit tests job succeeds.
+    # See https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs
+    needs: call-unit-tests-workflow
+    runs-on: ubuntu-latest
+    # Run if Dependabot triggered the initial workflow run.
+    if: ${{ github.actor == "dependabot[bot]" }}
+    steps:
+      # Fetch the Dependabot metadata that describes the updated dependencies.
+      - name: Fetch Dependabot metadata
+        # Specify the ID to use to access the output of this step.
+        id: metadata
+        # Specify that this step will run the `dependabot/fetch-metadata` action.
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # Auto-merge the PR.
+      - name: Auto-merge Dependabot PR
+        # Auto-merge dependencies only for patch and minor updates.
+        if: ${{ steps.metadata.outputs.update-type == "version-update:semver-patch" || steps.metadata.outputs.update-type == "version-update:semver-minor" }}
+        # Merge the PR automatically once all status checks have passed. If no status checks are
+        # set within the branch protection rules, this will merge every time. This job will only
+        # run when the unit tests succeed however, so status checks do not need to be configured.
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ inputs.pr_url }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
+    secrets: inherit
