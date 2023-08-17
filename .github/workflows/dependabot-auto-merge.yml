@@ -16,10 +16,10 @@ on:
       unit-tests-workflow-ref:
         description: | 
           A reference to the workflow that should succeed before auto-merging dependencies.
-          e.g. "example-org/example-repo/.github/workflows/unit-tests.yml@main"
+          e.g. "example-org/example-repo/.github/workflows/unit-tests.yml@develop"
         required: true
         type: string
-      pr_url:
+      pr-url:
         description: "The URL of the Dependabot PR to auto-merge."
         required: true
         type: string
@@ -28,13 +28,13 @@ jobs:
   # Run the given unit tests.
   call-unit-tests-workflow:
     # Run if Dependabot triggered the initial workflow run.
-    if: ${{ github.actor == "dependabot[bot]" }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     uses: ${{ inputs.unit-tests-workflow-ref }}
   # Auto-merge dependabot PR.
   # Based on https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#enable-auto-merge-on-a-pull-request
   auto-merge-dependabot-pr:
     # Run if Dependabot triggered the initial workflow run.
-    if: ${{ github.actor == "dependabot[bot]" }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     # Specify that this job should only run if the unit tests job succeeds.
     # See https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#defining-prerequisite-jobs
     needs: call-unit-tests-workflow
@@ -51,11 +51,12 @@ jobs:
       # Auto-merge the PR.
       - name: Auto-merge Dependabot PR
         # Auto-merge dependencies only for patch and minor updates.
-        if: ${{ steps.metadata.outputs.update-type == "version-update:semver-patch" || steps.metadata.outputs.update-type == "version-update:semver-minor" }}
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' }}
         # Merge the PR automatically once all status checks have passed. If no status checks are
         # set within the branch protection rules, this will merge every time. This job will only
         # run when the unit tests succeed however, so status checks do not need to be configured.
         run: gh pr merge --auto --merge "$PR_URL"
         env:
-          PR_URL: ${{ inputs.pr_url }}
+          PR_URL: ${{ inputs.pr-url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
