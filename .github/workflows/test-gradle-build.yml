@@ -11,7 +11,7 @@
  # www.brightsparklabs.com
  ##
 
-name: Reusable build with Gradle workflow
+name: Build with Gradle
 
 on:
   # This workflow will run when called by another workflow.

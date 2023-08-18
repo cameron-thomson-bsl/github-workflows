@@ -1,7 +1,7 @@
 ##
  # A reusable Dependabot auto-merge workflow for merging patch and minor updates.
  #
- # This workflow can be called from jobs in other workflows with:
+ # This workflow can be called from workflow jobs in other repos with:
  #  `uses: cameron-thomson-bsl/github-workflows/.github/workflows/dependabot-auto-merge.yml@develop`
  #
  # See https://docs.github.com/en/actions/using-workflows/reusing-workflows#creating-a-reusable-workflow
@@ -11,7 +11,7 @@
  # www.brightsparklabs.com
  ##
 
-name: Reusable Dependabot auto-merge workflow
+name: Dependabot auto-merge
 on:
   # This workflow will run when called by another workflow.
   workflow_call:
