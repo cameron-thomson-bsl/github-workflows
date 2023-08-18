@@ -1,7 +1,7 @@
 ##
  # A reusable Gradle build workflow for testing for breaking changes.
  #
- # This workflow can be called from jobs in other workflows with:
+ # This workflow can be called from workflow jobs in other repos with:
  #  `uses: cameron-thomson-bsl/github-workflows/.github/workflows/test-gradle-build.yml@develop`
  #
  # See https://docs.github.com/en/actions/using-workflows/reusing-workflows#creating-a-reusable-workflow
@@ -21,7 +21,6 @@ on:
         description: "The short ref name of the branch or tag that triggered the workflow run."
         required: true
         type: string
-
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
